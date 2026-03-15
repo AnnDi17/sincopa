@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Синкопа — Геометрия ритма</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app">
+        <!-- Главное меню -->
+        <div id="menu-screen" class="screen active">
+            <div class="menu-content">
+                <h1 class="title">СИНКОПА</h1>
+                <div class="geometric-decor"></div>
+                <button id="btn-start" class="btn primary">ИГРАТЬ</button>
+            </div>
+        </div>
+
+        <!-- Игровой экран -->
+        <div id="game-screen" class="screen">
+            <div class="header">
+                <div id="combo-indicator" class="combo-badge hidden">Комбо x2</div>
+                <div class="header-main">
+                    <div class="stats-group">
+                        <div class="score-display">00</div>
+                        <div class="level-display">УР. 1</div>
+                    </div>
+                    <div class="lives-indicator" id="lives-indicator">
+                        <div class="life-marker active"></div>
+                        <div class="life-marker active"></div>
+                        <div class="life-marker active"></div>
+                    </div>
+                    <button id="btn-pause" class="btn icon-btn" aria-label="Пауза">
+                        <div class="pause-icon"></div>
+                    </button>
+                </div>
+            </div>
+
+            <div id="level-toast" class="toast hidden">УРОВЕНЬ 2</div>
+
+            <div class="board-container" id="board-container">
+                <div id="game-board"></div>
+                <div id="flash-overlay" class="flash-overlay"></div>
+            </div>
+
+            <div class="controls">
+                <button class="dpad-btn" id="btn-up" aria-label="Вверх">▲</button>
+                <div class="dpad-row">
+                    <button class="dpad-btn" id="btn-left" aria-label="Влево">◀</button>
+                    <button class="dpad-btn" id="btn-down" aria-label="Вниз">▼</button>
+                    <button class="dpad-btn" id="btn-right" aria-label="Вправо">▶</button>
+                </div>
+            </div>
+
+            <div id="pause-overlay" class="overlay hidden">
+                <div class="overlay-content">
+                    <h2>ПАУЗА</h2>
+                    <button id="btn-resume" class="btn primary">ПРОДОЛЖИТЬ</button>
+                    <button id="btn-menu-from-pause" class="btn secondary">В МЕНЮ</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Экран Game Over -->
+        <div id="game-over-screen" class="screen">
+            <div class="game-over-content">
+                <h2 class="game-over-title">ИГРА<br>ОКОНЧЕНА</h2>
+
+                <div class="game-over-panel">
+                    <div class="stats-grid">
+                        <div class="stats-box">
+                            <div class="stat-label">СЧЁТ</div>
+                            <div id="final-score" class="stat-value">00</div>
+                        </div>
+                        <div class="stats-box">
+                            <div class="stat-label">УРОВЕНЬ</div>
+                            <div id="final-level" class="stat-value">1</div>
+                        </div>
+                    </div>
+                    <div class="stats-grid record-grid">
+                        <div class="stats-box record-box">
+                            <div class="stat-label">РЕКОРД</div>
+                            <div id="high-score" class="stat-value">00</div>
+                            <div id="new-record-badge" class="badge hidden">НОВЫЙ!</div>
+                        </div>
+                        <div class="stats-box record-box">
+                            <div class="stat-label">МАКС. УР.</div>
+                            <div id="max-level" class="stat-value">1</div>
+                            <div id="new-level-badge" class="badge hidden">НОВЫЙ!</div>
+                        </div>
+                    </div>
+                    <div class="actions">
+                        <button id="btn-restart" class="btn primary">ИГРАТЬ СНОВА</button>
+                        <button id="btn-menu-from-over" class="btn secondary">В МЕНЮ</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Экран загрузки: скрывается только после VKWebAppInit (или по таймауту вне VK) -->
+    <div id="vk-loading" class="vk-loading-screen" aria-live="polite">
+        <div class="vk-loading-content">
+            <div class="vk-loading-logo">
+                <div class="shape-square"></div>
+                <div class="shape-circle"></div>
+            </div>
+            <div class="vk-loading-text">ЗАГРУЗКА</div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js" async></script>
+    <script src="script.js" defer></script>
+</body>
+</html>
