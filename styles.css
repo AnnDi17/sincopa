@@ -225,22 +225,20 @@ h2 {
     border: 3px solid var(--text);
 }
 
-/* Игровой экран */
+/* Игровой экран (портретная шапка) */
 .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    width: 100%;
+    position: relative;
+    padding-bottom: 24px; /* воздух под плашку комбо */
     margin-bottom: 16px;
 }
 
-/* В портрете header-main «прозрачен»: порядок в строке — счёт, жизни, комбо, пауза */
 .header-main {
-    display: contents;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr; /* счёт — жизни — пауза */
+    align-items: center;
+    width: 100%;
 }
-.header > .stats-group { order: 1; }
-.header > .lives-indicator { order: 2; }
-.header > #combo-indicator { order: 3; }
-.header > .btn { order: 4; }
 
 .score-display {
     font-size: 48px;
@@ -253,12 +251,29 @@ h2 {
 .stats-group {
     display: flex;
     flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+}
+
+.score-zone {
+    justify-self: start;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .lives-indicator {
+    justify-self: center;
     display: flex;
     gap: 6px;
     align-items: center;
+}
+
+#btn-pause {
+    justify-self: end;
+    position: static;
+    margin: 0;
 }
 
 .life-marker {
@@ -305,14 +320,25 @@ h2 {
     border: 2px solid var(--text);
     box-shadow: 3px 3px 0 var(--text);
     transform: rotate(-3deg);
-    animation: popIn 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    white-space: nowrap;
 }
 
-.combo-badge.hidden { display: none; }
+#combo-indicator {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin-top: 6px;
+    transform-origin: top left;
+    transition: opacity 0.2s ease;
+    opacity: 1;
+    pointer-events: auto;
+    display: inline-flex !important;
+}
 
-@keyframes popIn {
-    0% { transform: scale(0.5) rotate(-10deg); opacity: 0; }
-    100% { transform: scale(1) rotate(-3deg); opacity: 1; }
+.combo-badge.hidden,
+#combo-indicator.hidden {
+    opacity: 0;
+    pointer-events: none;
 }
 
 .toast {
@@ -347,6 +373,7 @@ h2 {
     background-color: var(--bg);
     position: relative;
     box-shadow: 6px 6px 0 var(--text);
+    margin-top: 10px; /* зазор от шапки и плашки комбо (портрет) */
     margin-bottom: 16px;
 }
 
@@ -740,7 +767,7 @@ h2 {
         margin-right: auto;
     }
 
-    /* Игровой экран: поле по центру устройства, блок счёта/паузы в левой зоне */
+    /* Игровой экран: левый блок прижат к полю, поле по центру */
     body:not(.force-portrait) #game-screen.active {
         display: grid;
         grid-template-columns: 1fr auto 1fr;
@@ -759,19 +786,21 @@ h2 {
         height: 100%;
         min-height: 0;
         margin-bottom: 0;
+        padding-bottom: 0;
+        padding-right: 14px;
         align-items: center;
-        justify-items: center;
+        justify-items: end;
         justify-self: end;
     }
+    /* Комбо-плашка в альбоме: НАД счётом, по центру над цифрами */
     body:not(.force-portrait) #combo-indicator {
-        grid-row: 1;
-        align-self: end;
-        margin-bottom: 20px;
-        min-height: 2em;
-    }
-    body:not(.force-portrait) #combo-indicator.hidden {
-        visibility: hidden;
-        display: block;
+        position: absolute;
+        top: 0;
+        bottom: auto;
+        left: 50%;
+        transform: translateX(-50%) rotate(-3deg);
+        margin: 16px 0 0 0;
+        min-height: 0;
     }
     body:not(.force-portrait) .header-main {
         grid-row: 2;
@@ -782,8 +811,16 @@ h2 {
         gap: 24px;
         width: auto;
     }
+    body:not(.force-portrait) .score-zone {
+        /* Reserve enough vertical room for combo badge above score in landscape */
+        padding-top: 56px;
+    }
     body:not(.force-portrait) .stats-group {
         align-items: center;
+    }
+    body:not(.force-portrait) .lives-indicator {
+        flex-direction: row;
+        flex-wrap: nowrap;
     }
     body:not(.force-portrait) .board-container {
         grid-column: 2;
@@ -795,6 +832,7 @@ h2 {
         aspect-ratio: 1/1;
         justify-self: center;
         align-self: center;
+        margin-top: 0;
         margin-bottom: 0;
     }
     body:not(.force-portrait) .controls {
@@ -812,16 +850,43 @@ h2 {
         flex-direction: row;
         align-items: center;
         justify-content: center;
-        gap: 64px;
+        gap: clamp(24px, 6vh, 64px);
     }
     body:not(.force-portrait) .game-over-title {
-        margin-bottom: 0;
+        font-size: clamp(30px, 9vh, 40px);
+        line-height: 1.05;
+        margin-bottom: clamp(12px, 3vh, 24px);
         text-align: right;
     }
     body:not(.force-portrait) .game-over-panel {
-        max-width: 320px;
+        width: min(320px, 42vw);
         display: flex;
         flex-direction: column;
+    }
+    body:not(.force-portrait) .stats-grid {
+        gap: clamp(8px, 2vh, 16px);
+        margin-bottom: clamp(8px, 2vh, 16px);
+    }
+    body:not(.force-portrait) .stats-box {
+        padding: clamp(10px, 2.2vh, 16px) 8px;
+    }
+    body:not(.force-portrait) .stat-label {
+        font-size: clamp(10px, 2.1vh, 12px);
+        margin-bottom: clamp(4px, 1.2vh, 8px);
+    }
+    body:not(.force-portrait) .stat-value {
+        font-size: clamp(30px, 7.2vh, 40px);
+    }
+    body:not(.force-portrait) .record-grid {
+        margin-bottom: clamp(12px, 3vh, 24px);
+    }
+    body:not(.force-portrait) .actions {
+        margin-top: clamp(12px, 3vh, 24px);
+    }
+    body:not(.force-portrait) .actions .btn {
+        min-height: clamp(44px, 8vh, 56px);
+        font-size: clamp(16px, 3.2vh, 20px);
+        margin-bottom: clamp(10px, 2vh, 16px);
     }
 
     /* Оверлеи и пауза */
@@ -855,7 +920,7 @@ body.force-landscape .btn {
     margin-right: auto;
 }
 
-/* Игровой экран в альбоме: поле ровно по центру устройства, блок счёта/паузы — в левой зоне */
+/* Игровой экран в альбоме: левый блок прижат к полю, поле по центру */
 body.force-landscape #game-screen.active {
     display: grid;
     grid-template-columns: 1fr auto 1fr;
@@ -865,7 +930,7 @@ body.force-landscape #game-screen.active {
     min-width: 0;
     overflow: hidden;
 }
-/* Сайдбар только по высоте поля, прижат к полю (справа в первой колонке) */
+/* Сайдбар: прижат к полю (справа в первой колонке) */
 body.force-landscape .header {
     grid-column: 1;
     grid-row: 1;
@@ -875,19 +940,21 @@ body.force-landscape .header {
     height: 100%;
     min-height: 0;
     margin-bottom: 0;
+    padding-bottom: 0;
+    padding-right: 14px;
     align-items: center;
-    justify-items: center;
+    justify-items: end;
     justify-self: end;
 }
+/* Комбо-плашка в force-landscape: НАД счётом, по центру над цифрами */
 body.force-landscape #combo-indicator {
-    grid-row: 1;
-    align-self: end;
-    margin-bottom: 20px;
-    min-height: 2em;
-}
-body.force-landscape #combo-indicator.hidden {
-    visibility: hidden;
-    display: block;
+    position: absolute;
+    top: 0;
+    bottom: auto;
+    left: 50%;
+    transform: translateX(-50%) rotate(-3deg);
+    margin: 16px 0 0 0;
+    min-height: 0;
 }
 body.force-landscape .header-main {
     grid-row: 2;
@@ -898,8 +965,16 @@ body.force-landscape .header-main {
     gap: 24px;
     width: auto;
 }
+body.force-landscape .score-zone {
+    /* Reserve enough vertical room for combo badge above score in landscape */
+    padding-top: 56px;
+}
 body.force-landscape .stats-group {
     align-items: center;
+}
+body.force-landscape .lives-indicator {
+    flex-direction: row;
+    flex-wrap: nowrap;
 }
 /* Поле в центральной колонке — ровно по центру экрана */
 body.force-landscape .board-container {
@@ -912,6 +987,7 @@ body.force-landscape .board-container {
     aspect-ratio: 1/1;
     justify-self: center;
     align-self: center;
+    margin-top: 0;
     margin-bottom: 0;
 }
 body.force-landscape .controls {
@@ -929,16 +1005,43 @@ body.force-landscape .game-over-content {
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    gap: 64px;
+    gap: clamp(24px, 6vh, 64px);
 }
 body.force-landscape .game-over-title {
-    margin-bottom: 0;
+    font-size: clamp(30px, 9vh, 40px);
+    line-height: 1.05;
+    margin-bottom: clamp(12px, 3vh, 24px);
     text-align: right;
 }
 body.force-landscape .game-over-panel {
-    max-width: 320px;
+    width: min(320px, 42vw);
     display: flex;
     flex-direction: column;
+}
+body.force-landscape .stats-grid {
+    gap: clamp(8px, 2vh, 16px);
+    margin-bottom: clamp(8px, 2vh, 16px);
+}
+body.force-landscape .stats-box {
+    padding: clamp(10px, 2.2vh, 16px) 8px;
+}
+body.force-landscape .stat-label {
+    font-size: clamp(10px, 2.1vh, 12px);
+    margin-bottom: clamp(4px, 1.2vh, 8px);
+}
+body.force-landscape .stat-value {
+    font-size: clamp(30px, 7.2vh, 40px);
+}
+body.force-landscape .record-grid {
+    margin-bottom: clamp(12px, 3vh, 24px);
+}
+body.force-landscape .actions {
+    margin-top: clamp(12px, 3vh, 24px);
+}
+body.force-landscape .actions .btn {
+    min-height: clamp(44px, 8vh, 56px);
+    font-size: clamp(16px, 3.2vh, 20px);
+    margin-bottom: clamp(10px, 2vh, 16px);
 }
 
 /* Оверлеи и пауза */
@@ -946,4 +1049,5 @@ body.force-landscape .overlay-content {
     max-width: 320px;
     margin: 0 auto;
 }
+
 
