@@ -67,6 +67,7 @@
     applyOrientation();
     window.addEventListener('resize', function () {
         applyOrientation();
+        if (typeof updatePortraitBoardSize === 'function') updatePortraitBoardSize();
         if (typeof render === 'function' && screens.game.classList.contains('active')) render();
     });
 })();
@@ -138,6 +139,63 @@ const maxLevelEl = document.getElementById('max-level');
 const newRecordBadge = document.getElementById('new-record-badge');
 const newLevelBadge = document.getElementById('new-level-badge');
 const pauseOverlay = document.getElementById('pause-overlay');
+const boardContainerEl = document.getElementById('board-container');
+
+function updatePortraitBoardSize() {
+    if (!screens.game || !boardContainerEl) return;
+
+    const isPortrait = window.innerHeight >= window.innerWidth;
+    const gameIsVisible = screens.game.classList.contains('active');
+    if (!isPortrait || !gameIsVisible) {
+        boardContainerEl.style.removeProperty('width');
+        boardContainerEl.style.removeProperty('height');
+        boardContainerEl.style.removeProperty('max-width');
+        boardContainerEl.style.removeProperty('max-height');
+        boardContainerEl.style.removeProperty('margin-left');
+        boardContainerEl.style.removeProperty('margin-right');
+        return;
+    }
+
+    const headerEl = screens.game.querySelector('.header');
+    const controlsEl = screens.game.querySelector('.controls');
+    if (!headerEl || !controlsEl) return;
+
+    const gameStyles = getComputedStyle(screens.game);
+    const boardStyles = getComputedStyle(boardContainerEl);
+    const paddingTop = parseFloat(gameStyles.paddingTop) || 0;
+    const paddingBottom = parseFloat(gameStyles.paddingBottom) || 0;
+    const paddingLeft = parseFloat(gameStyles.paddingLeft) || 0;
+    const paddingRight = parseFloat(gameStyles.paddingRight) || 0;
+    const boardMarginTop = parseFloat(boardStyles.marginTop) || 0;
+    const boardMarginBottom = parseFloat(boardStyles.marginBottom) || 0;
+
+    const availableWidth = screens.game.clientWidth - paddingLeft - paddingRight;
+    const availableHeight =
+        screens.game.clientHeight -
+        paddingTop -
+        paddingBottom -
+        headerEl.offsetHeight -
+        controlsEl.offsetHeight -
+        boardMarginTop -
+        boardMarginBottom;
+
+    const targetSize = Math.floor(Math.min(availableWidth, availableHeight));
+    if (targetSize > 0 && targetSize < availableWidth) {
+        boardContainerEl.style.width = `${targetSize}px`;
+        boardContainerEl.style.height = `${targetSize}px`;
+        boardContainerEl.style.maxWidth = '100%';
+        boardContainerEl.style.maxHeight = '100%';
+        boardContainerEl.style.marginLeft = 'auto';
+        boardContainerEl.style.marginRight = 'auto';
+    } else {
+        boardContainerEl.style.removeProperty('width');
+        boardContainerEl.style.removeProperty('height');
+        boardContainerEl.style.removeProperty('max-width');
+        boardContainerEl.style.removeProperty('max-height');
+        boardContainerEl.style.removeProperty('margin-left');
+        boardContainerEl.style.removeProperty('margin-right');
+    }
+}
 
 function init() {
     document.getElementById('btn-start').addEventListener('click', startGame);
@@ -166,6 +224,7 @@ function init() {
 function showScreen(screenName) {
     Object.values(screens).forEach(s => s.classList.remove('active'));
     screens[screenName].classList.add('active');
+    requestAnimationFrame(updatePortraitBoardSize);
 }
 
 function startGame() {
@@ -179,6 +238,7 @@ function startGame() {
     // Даём браузеру сделать раскладку экрана игры, затем инициализируем и рисуем змею
     requestAnimationFrame(function () {
         resetSession();
+        updatePortraitBoardSize();
     });
 }
 
